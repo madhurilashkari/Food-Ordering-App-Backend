@@ -5,6 +5,7 @@ import com.upgrad.FoodOrderingApp.api.model.*;
 import com.upgrad.FoodOrderingApp.service.businness.AddressService;
 import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.StateEntity;
+import com.upgrad.FoodOrderingApp.service.exception.AddressNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.SignUpRestrictedException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,4 +88,47 @@ public class AddressController {
         return new ResponseEntity<AddressListResponse>(addressListResponse, HttpStatus.OK);
 
     }
+
+    @RequestMapping(method = RequestMethod.DELETE,
+            path = "/address/{address_id}" ,
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+
+    public ResponseEntity<DeleteAddressResponse> deleteAddress(String authorization,
+                                                               @PathVariable("address_id") String addressUuid)
+            throws AuthorizationFailedException, AddressNotFoundException {
+
+               String[] bearerToken = authorization.split("Bearer ");
+
+
+        AddressEntity deletedAddress = addressService.deleteAddress(addressUuid, bearerToken[1]);
+
+
+        DeleteAddressResponse deleteAddressResponse = new DeleteAddressResponse().id(UUID.fromString(deletedAddress.getUuid()))
+                .status("ADDRESS DELETED SUCCESSFULLY");
+
+        // Returns the DeleteAddressResponse with OK http status
+        return new ResponseEntity<DeleteAddressResponse>(deleteAddressResponse, HttpStatus.OK);
+    }
+
+
+    @RequestMapping(method = RequestMethod.GET,
+            path = "/states",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<StatesListResponse> getAllStates() throws AuthorizationFailedException {
+
+
+        List<StateEntity> stateEntityList = addressService.getAllStates();
+        StatesListResponse stateListResponse = new StatesListResponse();
+
+
+        for (StateEntity se : stateEntityList) {
+            StatesList state = new StatesList();
+            state.setStateName(se.getStateName());
+            state.setId(UUID.fromString(se.getUuid()));
+            stateListResponse.addStatesItem(state);
+        }
+
+        return new ResponseEntity<StatesListResponse>(stateListResponse, HttpStatus.OK);
+    }
+
 }

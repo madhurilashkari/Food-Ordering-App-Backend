@@ -26,4 +26,12 @@ public class AddressService {
     public StateEntity getStateById(Integer id){
         return new StateEntity();
     }
+
+    public AddressEntity deleteAddress(String addressUuid,String bearerToken){
+        return new AddressEntity();
+    }
+
+    public List<StateEntity> getAllStates(){
+        return new ArrayList<StateEntity>();
+    }
 }
